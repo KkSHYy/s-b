@@ -1,20 +1,36 @@
 import { User } from "../models/User.js";
 import bcrypt from "bcrypt";
-
-console.log(bcrypt);
+import { json } from "express";
+import jwt from "jsonwebtoken";
 
 export const getAllUsers = (req,res) => {
   return res.status(200).json({});
   } 
   
-  export const loginUser = async (req,res) => {
-    // try{
-    //   await User.create(req.body);
-    //   return res.status(200).json({message: "Logged In successfully"});
-    // } catch(err)
-    // {
-     
-    // }
+  export const loginUser = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+      const isExist = await User.findOne({ email });
+      if (!isExist) return res.status(404).json({ message: 'user doesn\'t exist' });
+  
+      const pass = bcrypt.compareSync(password, isExist.password);
+      if (!pass) return res.status(401).json({ message: 'invalid credential' });
+  
+      const token = jwt.sign({
+        id: isExist._id,
+        isAdmin: isExist.isAdmin
+      }, 'secret');
+  
+      return res.status(200).json({
+        token,
+        id: isExist._id,
+        email: isExist.email,
+        fullname: isExist.fullname,
+        isAdmin: isExist.isAdmin
+      });
+    } catch (err) {
+      return res.status(400).json({ error: `${err}` });
+    }
   }
 
   export const registeredUser = async (req,res) => {
