@@ -23,11 +23,9 @@ export const getAllUsers = (req,res) => {
   
       return res.status(200).json({
         token,
-        id: isExist._id,
         email: isExist.email,
         fullname: isExist.fullname,
-        isAdmin: isExist.isAdmin
-      });
+      })
     } catch (err) {
       return res.status(400).json({ error: `${err}` });
     }
