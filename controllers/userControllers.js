@@ -1,8 +1,8 @@
 import { User } from "../models/User.js";
 import bcrypt from "bcrypt";
-import { json } from "express";
 import jwt from "jsonwebtoken";
-
+import mongoose from "mongoose";
+       
 export const getAllUsers = (req,res) => {
   return res.status(200).json({});
   } 
@@ -25,7 +25,10 @@ export const getAllUsers = (req,res) => {
         token,
         email: isExist.email,
         fullname: isExist.fullname,
-      })
+        isAdmin: isExist.isAdmin,
+        token,
+        id:isExist._id
+      });
     } catch (err) {
       return res.status(400).json({ error: `${err}` });
     }
@@ -51,5 +54,26 @@ export const getAllUsers = (req,res) => {
     } catch (err)
     {
       return res.status(400).json({error: `${err}`});
+    }
+  }
+
+  export const updateUser = async (req, res) => {
+    const { id } = req.params;
+    try {
+      if (mongoose.isValidObjectId(id)) {
+        const isExist = await User.findById(id);
+        if (!isExist) return res.status(404).json({ message: 'user doesn\'t exist' });
+        await isExist.updateOne({
+          fullname: req.body.fullname || isExist.fullname,
+          email: req.body.email || isExist.email
+        });
+        return res.status(200).json({ message: 'user updated successfuly' });
+      } else {
+        return res.status(400).json({ message: 'please provide valid id' });
+      }
+  
+  
+    } catch (err) {
+      return res.status(400).json({ error: `${err}` });
     }
   }

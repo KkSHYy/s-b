@@ -22,6 +22,7 @@ app.listen(port, (e) => {
 app.use(express.json());
 app.use(cors());
 app.use(morgan('dev'));
+app.use('/uploads', express.static('uploads'));
 
 app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024 },
